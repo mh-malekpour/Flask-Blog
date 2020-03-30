@@ -11,10 +11,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-
-@app.route('/')
-def index():
-    return "Blog Home"
+from views import index
 
 
 from mod_admin import admin
