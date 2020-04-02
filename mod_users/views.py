@@ -1,5 +1,8 @@
 from flask import request, render_template, flash
+from sqlalchemy.exc import IntegrityError
+
 from app import db
+
 from . import users
 from .form import RegisterForm
 from .models import User
@@ -20,7 +23,11 @@ def register():
         new_user.full_name = form.full_name.data
         new_user.email = form.email.data
         new_user.set_password(form.password.data)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Account created successfully.', 'success')
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Account created successfully.', 'success')
+        except IntegrityError:
+            db.session.rollback()
+            flash('This email has already been used.', 'error')
     return render_template('users/register.html', form=form)
