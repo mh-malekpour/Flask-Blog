@@ -2,6 +2,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import Column, Integer, String
 from app import db
 
+# Role: 0 => User
+# Role: 1 => Admin
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -16,4 +18,6 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
-        
+    
+    def is_admin(self):
+        return self.role == 1
