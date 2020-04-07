@@ -108,4 +108,14 @@ def create_post():
             return redirect(url_for('admin.index'))
         except IntegrityError:
             db.session.rollback()
+            flash('Slug Duplicated', category='error')
     return render_template('admin/create_post.html', form=form)
+
+
+@admin.route('/posts/', methods=['GET'])
+@admin_only_view
+def list_posts():
+    posts = Post.query.order_by(Post.id.desc()).all()
+    return render_template('admin/list_posts.html', posts=posts)
+
+
