@@ -57,6 +57,38 @@ def list_users():
     users = User.query.order_by(User.id.desc()).all()
     return render_template('admin/list_users.html', users=users)
 
+@admin.route('/users/new/', methods=['GET'])
+@admin_only_view
+def get_create_user():
+    form = RegisterForm()
+    return render_template('admin/create_user.html', form=form)
+
+
+@admin.route('/users/new/', methods=['POST'])
+@admin_only_view
+def post_create_user():
+    form = RegisterForm(request.form)
+    if not form.validate_on_submit():
+        return render_template('admin/create_user.html', form=form)
+    if not form.password.data == form.confirm_password.data:
+        error_msg = 'Password and Confirm Password does not match.'
+        form.password.errors.append(error_msg)
+        form.confirm_password.errors.append(error_msg)
+        return render_template('admin/create_user.html', form=form)
+    new_user = User()
+    new_user.full_name = form.full_name.data
+    new_user.email = form.email.data
+    new_user.set_password(form.password.data)
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Account created successfully.', 'success')
+    except IntegrityError:
+        db.session.rollback()
+        flash('This email has already been used.', 'error')
+    return render_template('admin/create_user.html')
+
+
 @admin.route('/posts/new', methods=['GET','POST'])
 @admin_only_view
 def create_post():
